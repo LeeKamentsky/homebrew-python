@@ -15,21 +15,22 @@ class Numpy < Formula
   homepage 'http://www.numpy.org'
   url 'https://github.com/CellProfiler/numpy/archive/maintenance/1.8.x.tar.gz'
   sha1 '0bd041a769d501cfea2126fd30ad6ae539ef36b0'
-  head 'https://github.com/numpy/numpy.git'
+  version 'v1.8.1_cellprofiler'
+  head 'https://github.com/CellProfiler/numpy.git'
 
   depends_on :python => :recommended
-  depends_on :python3 => :optional
-  depends_on :fortran
-  depends_on NoUserConfig
-  depends_on 'homebrew/science/suite-sparse'  # for libamd and libumfpack
+  #depends_on :python3 => :optional
+  # depends_on :fortran
+  #depends_on NoUserConfig
+  #depends_on 'homebrew/science/suite-sparse'  # for libamd and libumfpack
 
-  option 'with-openblas', "Use openBLAS instead of Apple's Accelerate Framework"
-  depends_on "homebrew/science/openblas" => :optional
+  #option 'with-openblas', "Use openBLAS instead of Apple's Accelerate Framework"
+  #depends_on "homebrew/science/openblas" => :optional
 
-  resource 'nose' do
-    url 'https://pypi.python.org/packages/source/n/nose/nose-1.3.1.tar.gz'
-    sha1 '19ba8f266a8ee4f128ef3eebf3c3e04e8ea7b998'
-  end
+  #resource 'nose' do
+  #  url 'https://pypi.python.org/packages/source/n/nose/nose-1.3.1.tar.gz'
+  #  sha1 '19ba8f266a8ee4f128ef3eebf3c3e04e8ea7b998'
+  #end
 
   def package_installed? python, module_name
     quiet_system python, "-c", "import #{module_name}"
@@ -52,23 +53,23 @@ class Numpy < Formula
 
     EOS
 
-    if build.with? 'openblas'
-      openblas_dir = Formula["openblas"].opt_prefix
-      # Setting ATLAS to None is important to prevent numpy from always
-      # linking against Accelerate.framework.
-      ENV['ATLAS'] = "None"
-      ENV['BLAS'] = ENV['LAPACK'] = "#{openblas_dir}/lib/libopenblas.dylib"
+    #if build.with? 'openblas'
+    #  openblas_dir = Formula["openblas"].opt_prefix
+    #  # Setting ATLAS to None is important to prevent numpy from always
+    #  # linking against Accelerate.framework.
+    #  ENV['ATLAS'] = "None"
+    #  ENV['BLAS'] = ENV['LAPACK'] = "#{openblas_dir}/lib/libopenblas.dylib"
+    #
+    #  config << <<-EOS.undent
+    #    [openblas]
+    #    libraries = openblas
+    #    library_dirs = #{openblas_dir}/lib
+    #    include_dirs = #{openblas_dir}/include
+    #  EOS
+    #end
 
-      config << <<-EOS.undent
-        [openblas]
-        libraries = openblas
-        library_dirs = #{openblas_dir}/lib
-        include_dirs = #{openblas_dir}/include
-      EOS
-    end
-
-    rm_f 'site.cfg' if build.devel?
-    Pathname('site.cfg').write config
+    #rm_f 'site.cfg' if build.devel?
+    #Pathname('site.cfg').write config
 
     if HOMEBREW_CELLAR.subdirs.map{ |f| File.basename f }.include? 'gfortran'
         opoo <<-EOS.undent
@@ -81,34 +82,7 @@ class Numpy < Formula
         EOS
     end
 
-    Language::Python.each_python(build) do |python, version|
-      resource("nose").stage do
-        system python, "setup.py", "install", "--prefix=#{prefix}",
-                       "--single-version-externally-managed",
-                       "--record=installed.txt"
-        mv prefix/"man", share  # Brew puts "man" into "share".
-      end unless package_installed? python, "nose"
-      system python, "setup.py", "build", "--fcompiler=gnu95", "install",
-                                          "--prefix=#{prefix}"
-    end
-  end
-
-  test do
-    Language::Python.each_python(build) do |python, version|
-      system python, "-c", "import numpy; numpy.test()"
-    end
-  end
-
-  def caveats
-    if build.with? "python" and not Formula['python'].installed?
-      <<-EOS.undent
-        If you use system python (that comes - depending on the OS X version -
-        with older versions of numpy, scipy and matplotlib), you actually may
-        have to set the `PYTHONPATH` in order to make the brewed packages come
-        before these shipped packages in Python's `sys.path`.
-            export PYTHONPATH=#{HOMEBREW_PREFIX}/lib/python2.7/site-packages
-      EOS
-    end
+    system "python", "setup.py", "build", "install", "--prefix=#{prefix}"
   end
 
 end
