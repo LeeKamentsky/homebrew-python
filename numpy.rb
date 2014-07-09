@@ -13,8 +13,8 @@ end
 
 class Numpy < Formula
   homepage 'http://www.numpy.org'
-  url 'https://downloads.sourceforge.net/project/numpy/NumPy/1.8.1/numpy-1.8.1.tar.gz'
-  sha1 '8fe1d5f36bab3f1669520b4c7d8ab59a21a984da'
+  url 'https://github.com/CellProfiler/numpy/archive/maintenance/1.8.x.tar.gz'
+  sha1 '0bd041a769d501cfea2126fd30ad6ae539ef36b0'
   head 'https://github.com/numpy/numpy.git'
 
   depends_on :python => :recommended
